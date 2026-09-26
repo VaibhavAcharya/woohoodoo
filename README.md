@@ -1,6 +1,6 @@
 # WooHooDoo
 
-WooHooDoo is a small macOS menu bar app for clipboard history. Search and preview what you copied, then paste it back with a keyboard shortcut. It is built with SwiftUI and AppKit and keeps history on your Mac.
+WooHooDoo is a free, open-source macOS menu bar app for clipboard history. Search and preview what you copied, then paste it back with a keyboard shortcut. It is built with SwiftUI and AppKit and keeps history on your Mac.
 
 ![WooHooDoo clipboard history in light appearance](docs/screenshots/history-light.png)
 
@@ -12,7 +12,11 @@ WooHooDoo is a small macOS menu bar app for clipboard history. Search and previe
 - Pins clips, sets retention limits, and pauses capture from settings.
 - Runs from the menu bar. Launch at login is optional and off by default.
 
-The app has no account, network calls, or third-party packages. Clipboard history is its first utility; the app structure leaves room for more.
+The app has no account, subscription, network calls, or third-party packages. Clipboard history is its first utility; the app structure leaves room for more.
+
+## Size and memory
+
+The release app bundle is **1.9 MB on disk**. In a local measurement on Apple silicon with macOS 27.0, the menu bar app had 14 saved clips and its panel was closed. After one minute, `vmmap -summary` reported a **69.6 MB physical footprint**; `ps` reported **114 MB resident memory (RSS)**. This was measured on 26 September 2026. Memory use can change with history size and open media previews.
 
 ## Install
 
@@ -50,9 +54,15 @@ Open the gear button to change retention and capture settings. To start the app 
 
 These are macOS window captures of the app with sample clips. They contain no personal clipboard data.
 
-| Dark appearance | Settings |
+| Video playing with native controls | GIF preview |
 | --- | --- |
-| ![Clipboard history in dark appearance](docs/screenshots/history-dark.png) | ![Clipboard retention and capture settings](docs/screenshots/settings-light.png) |
+| ![Video playing in the preview pane with pause and timeline controls](docs/screenshots/video-preview.png) | ![Animated GIF file in the preview pane](docs/screenshots/gif-preview.png) |
+
+| Search and pinned clips | Dark appearance |
+| --- | --- |
+| ![Clipboard search results with a pinned code clip](docs/screenshots/search.png) | ![Clipboard history in dark appearance](docs/screenshots/history-dark.png) |
+
+![Clipboard retention and capture settings](docs/screenshots/settings-light.png)
 
 ## Retention and privacy
 

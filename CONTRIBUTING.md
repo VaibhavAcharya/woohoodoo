@@ -11,6 +11,6 @@ For UI changes, build the app first so the renderer can load its icon, then rend
 ./scripts/check-layout.sh
 ```
 
-The layout script captures the sample window through macOS `screencapture`. macOS may require Screen Recording access for the terminal running it. When the public interface changes, copy `.build/layout-history.png`, `.build/layout-dark.png`, and `.build/layout-settings.png` to the matching files in `docs/screenshots/`.
+The layout script captures the sample window through macOS `screencapture`. macOS may require Screen Recording access for the terminal running it. It renders history, settings, dark appearance, video playback, GIF preview, and search to `.build/layout-*.png`. When the public interface changes, copy the affected captures to `docs/screenshots/`. The video and GIF captures use the generated sample files in `docs/fixtures/`.
 
 Use sample clips in screenshots and bug reports. Clipboard history can contain private text, images, and file paths.

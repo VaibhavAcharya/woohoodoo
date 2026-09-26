@@ -19,7 +19,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-for scenario in light settings dark; do
+for scenario in light settings dark video gif search; do
     id_file="$(mktemp "$project_dir/.build/layout-id.XXXXXX")"
     .build/render-layout "$scenario" >"$id_file" &
     renderer_pid=$!
@@ -41,6 +41,9 @@ for scenario in light settings dark; do
         light) output="$project_dir/.build/layout-history.png" ;;
         settings) output="$project_dir/.build/layout-settings.png" ;;
         dark) output="$project_dir/.build/layout-dark.png" ;;
+        video) output="$project_dir/.build/layout-video.png" ;;
+        gif) output="$project_dir/.build/layout-gif.png" ;;
+        search) output="$project_dir/.build/layout-search.png" ;;
     esac
     rm -f "$output"
     if ! screencapture -x -l"$window_id" "$output"; then

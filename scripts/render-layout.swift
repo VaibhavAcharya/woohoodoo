@@ -1,4 +1,5 @@
 import AppKit
+import AVKit
 import Darwin
 import SwiftUI
 
@@ -12,9 +13,13 @@ struct LayoutCheck {
         defer { try? FileManager.default.removeItem(at: directory) }
 
         let scenario = CommandLine.arguments.dropFirst().first ?? "light"
-        precondition(["light", "dark", "settings"].contains(scenario))
+        precondition(["light", "dark", "settings", "video", "gif", "search"].contains(scenario))
         let previewFile = ProcessInfo.processInfo.environment["WOOHOODOO_LAYOUT_FILE"]
         let imageName = try makeSampleImage(in: directory)
+        let videoURL = directory.appendingPathComponent("Demo.mp4")
+        let gifURL = directory.appendingPathComponent("animation.gif")
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "docs/fixtures/preview.mp4"), to: videoURL)
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "docs/fixtures/preview.gif"), to: gifURL)
         let code = """
         struct ClipboardHistory {
             private(set) var clips: [Clip] = []
@@ -41,28 +46,35 @@ struct LayoutCheck {
                  filePaths: [path ?? "/tmp/\(name)"], fingerprint: UUID().uuidString,
                  createdAt: .now.addingTimeInterval(-minutesAgo * 60), isPinned: false)
         }
-        let clips = [
+        var clips = [
             Clip(id: UUID(), kind: .image, text: "Image", imageName: imageName,
                  filePaths: nil, fingerprint: "sample-image",
                  createdAt: .now.addingTimeInterval(-120), isPinned: false),
             textClip(code, minutesAgo: 5, pinned: true),
             fileClip(previewFile.map { URL(fileURLWithPath: $0).lastPathComponent } ?? "Demo.mp4",
-                     minutesAgo: 18, path: previewFile),
+                     minutesAgo: 18, path: previewFile ?? videoURL.path),
             textClip("https://example.com/design-notes", minutesAgo: 31),
             textClip("Project notes\n- Keep the clipboard easy to scan\n- Preview before pasting",
                      minutesAgo: 65),
             fileClip("project-brief.pdf", minutesAgo: 120),
-            fileClip("animation.gif", minutesAgo: 360),
+            fileClip("animation.gif", minutesAgo: 360, path: gifURL.path),
             textClip("swift build -c release", minutesAgo: 900),
             fileClip("layout-reference.png", minutesAgo: 1440),
             textClip("A short sample sentence to copy later.", minutesAgo: 2880),
         ]
+        if scenario == "gif" { clips.insert(clips.remove(at: 6), at: 0) }
         let state = SavedState(clips: clips, isPaused: false, retentionDays: 30, maxItems: 200)
         try JSONEncoder().encode(state).write(to: directory.appendingPathComponent("history.json"))
         let pasteboard = NSPasteboard(name: NSPasteboard.Name("WooHooDooLayout-\(UUID())"))
         let store = ClipboardStore(pasteboard: pasteboard, directory: directory, startsPolling: false)
         let controller = AppController(store: store)
-        controller.selectedIndex = previewFile == nil ? (scenario == "dark" ? 1 : 0) : 2
+        controller.selectedIndex = switch scenario {
+        case "dark": 1
+        case "video": 2
+        case "gif": 0
+        default: previewFile == nil ? 0 : 2
+        }
+        if scenario == "search" { controller.query = "clipboard" }
         controller.showSettings = scenario == "settings"
         let app = NSApplication.shared
         app.applicationIconImage = NSImage(contentsOfFile: "dist/WooHooDoo.app/Contents/Resources/AppIcon.icns")
@@ -86,7 +98,15 @@ struct LayoutCheck {
         window.makeKeyAndOrderFront(nil)
         app.activate(ignoringOtherApps: true)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+        if scenario == "video" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                if let contentView = window.contentView {
+                    playerView(in: contentView)?.player?.play()
+                }
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
             precondition(abs(window.frame.width - AppController.panelSize.width) < 1 &&
                          abs(window.frame.height - AppController.panelSize.height) < 1,
                          "Panel changed size while rendering \(scenario): \(window.frame)")
@@ -97,6 +117,11 @@ struct LayoutCheck {
         terminate.setEventHandler { app.terminate(nil) }
         terminate.resume()
         withExtendedLifetime((controller, window, terminate)) { app.run() }
+    }
+
+    private static func playerView(in view: NSView) -> AVPlayerView? {
+        if let playerView = view as? AVPlayerView { return playerView }
+        return view.subviews.lazy.compactMap { playerView(in: $0) }.first
     }
 
     private static func makeSampleImage(in directory: URL) throws -> String {

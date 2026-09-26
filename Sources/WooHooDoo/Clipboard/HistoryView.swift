@@ -5,6 +5,7 @@ struct HistoryView: View {
     @ObservedObject var controller: AppController
     @ObservedObject private var store: ClipboardStore
     @FocusState private var searchFocused: Bool
+    private let sidebarWidth: CGFloat = 306
 
     init(controller: AppController) {
         self.controller = controller
@@ -22,6 +23,7 @@ struct HistoryView: View {
                     sidebar
                     Divider()
                     PreviewPane(controller: controller)
+                        .frame(width: AppController.panelSize.width - sidebarWidth - 1)
                 }
             }
             Divider()
@@ -186,7 +188,7 @@ struct HistoryView: View {
                 }
             }
         }
-        .frame(width: 306)
+        .frame(width: sidebarWidth)
         .background(Color(nsColor: .controlBackgroundColor).opacity(0.55))
     }
 
