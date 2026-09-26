@@ -132,6 +132,7 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
 
     func show() {
         guard let panel else { return }
+        keepPanelSize(panel)
         previousApp = NSWorkspace.shared.frontmostApplication
         query = ""
         selectedIndex = 0
@@ -152,6 +153,19 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
 
     func windowDidResignKey(_ notification: Notification) {
         hide()
+    }
+
+    func windowDidResize(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow, window === panel else { return }
+        keepPanelSize(window)
+    }
+
+    private func keepPanelSize(_ window: NSWindow) {
+        let size = Self.panelSize
+        let frame = window.frame
+        guard abs(frame.width - size.width) > 1 || abs(frame.height - size.height) > 1 else { return }
+        window.setFrame(NSRect(x: frame.minX, y: frame.maxY - size.height,
+                               width: size.width, height: size.height), display: true)
     }
 
     func moveSelection(by offset: Int) {

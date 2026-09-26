@@ -285,15 +285,21 @@ private struct FilePreviewContent: View {
 private struct ImagePreviewView: NSViewRepresentable {
     let image: NSImage
 
-    func makeNSView(context: Context) -> NSImageView {
-        let view = NSImageView()
+    func makeNSView(context: Context) -> FlexibleImageView {
+        let view = FlexibleImageView()
         view.imageScaling = .scaleProportionallyUpOrDown
         view.animates = true
         return view
     }
 
-    func updateNSView(_ view: NSImageView, context: Context) {
+    func updateNSView(_ view: FlexibleImageView, context: Context) {
         view.image = image
+    }
+}
+
+private final class FlexibleImageView: NSImageView {
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
     }
 }
 
@@ -302,21 +308,21 @@ private struct VideoPreviewView: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(url: url) }
 
-    func makeNSView(context: Context) -> AVPlayerView {
-        let view = AVPlayerView()
+    func makeNSView(context: Context) -> FlexiblePlayerView {
+        let view = FlexiblePlayerView()
         view.controlsStyle = .inline
         view.player = AVPlayer(url: url)
         return view
     }
 
-    func updateNSView(_ view: AVPlayerView, context: Context) {
+    func updateNSView(_ view: FlexiblePlayerView, context: Context) {
         guard context.coordinator.url != url else { return }
         view.player?.pause()
         view.player = AVPlayer(url: url)
         context.coordinator.url = url
     }
 
-    static func dismantleNSView(_ view: AVPlayerView, coordinator: Coordinator) {
+    static func dismantleNSView(_ view: FlexiblePlayerView, coordinator: Coordinator) {
         view.player?.pause()
         view.player = nil
     }
@@ -325,6 +331,12 @@ private struct VideoPreviewView: NSViewRepresentable {
         var url: URL
 
         init(url: URL) { self.url = url }
+    }
+}
+
+private final class FlexiblePlayerView: AVPlayerView {
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
     }
 }
 
