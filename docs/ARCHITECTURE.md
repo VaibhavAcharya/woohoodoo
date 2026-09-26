@@ -22,6 +22,6 @@ This JSON model keeps the entire history in memory. It fits the default 200-item
 
 ## Build and checks
 
-`Package.swift` is the Swift package entry point. `scripts/build-app.sh` compiles the release executable, creates the app bundle and icon, then signs it locally. `scripts/install-app.sh` replaces the bundle in `~/Applications` and opens it. `scripts/check.sh` compiles `ClipboardStore` with isolated checks covering retention, pins, file references, and concealed content. `scripts/check-layout.sh` renders history, settings, and dark appearance with sample data for visual review. The public images in `docs/screenshots/` come from this renderer.
+`Package.swift` is the Swift package entry point. `scripts/build-app.sh` compiles the release executable, creates the app bundle and icon, then signs it locally. `scripts/install-app.sh` replaces the bundle in `~/Applications` and opens it. `scripts/check.sh` compiles `ClipboardStore` with isolated checks covering retention, pins, file references, and concealed content. `scripts/check-layout.sh` opens isolated sample windows for history, settings, and dark appearance and captures each window through macOS `screencapture`. The public images in `docs/screenshots/` come from this workflow.
 
 The app does not yet save rich text representations or offer per-app capture exclusions. Quick Look support depends on macOS and the original file remaining available.

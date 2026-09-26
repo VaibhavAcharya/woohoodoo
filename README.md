@@ -48,7 +48,7 @@ Open the gear button to change retention and capture settings. To start the app 
 
 ## Screenshots
 
-These images are rendered by the app's layout script with sample clips. They contain no personal clipboard data.
+These are macOS window captures of the app with sample clips. They contain no personal clipboard data.
 
 | Dark appearance | Settings |
 | --- | --- |
@@ -72,7 +72,7 @@ Turn off **Launch WooHooDoo at login** in settings, quit the app from its `...` 
 | `./scripts/check.sh` | Run clipboard storage checks |
 | `./scripts/check-layout.sh` | Render sample screens to `.build/layout-*.png` |
 
-Read [architecture](docs/ARCHITECTURE.md) for the app's data flow and storage, and [contributing](CONTRIBUTING.md) before sending a change. The screenshots above come from `./scripts/check-layout.sh` and show the app's 860 x 580 point panel at Retina resolution. On macOS 26 and later, header controls use Liquid Glass; earlier systems use standard controls.
+Read [architecture](docs/ARCHITECTURE.md) for the app's data flow and storage, and [contributing](CONTRIBUTING.md) before sending a change. The screenshots above come from `./scripts/check-layout.sh`, which captures a real 860 x 580 point sample window with its corners and shadow. On macOS 26 and later, header controls use Liquid Glass; earlier systems use standard controls.
 
 ## License
 

@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import SwiftUI
 
 @main
@@ -10,6 +11,8 @@ struct LayoutCheck {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
+        let scenario = CommandLine.arguments.dropFirst().first ?? "light"
+        precondition(["light", "dark", "settings"].contains(scenario))
         let previewFile = ProcessInfo.processInfo.environment["WOOHOODOO_LAYOUT_FILE"]
         let imageName = try makeSampleImage(in: directory)
         let code = """
@@ -59,18 +62,22 @@ struct LayoutCheck {
         let pasteboard = NSPasteboard(name: NSPasteboard.Name("WooHooDooLayout-\(UUID())"))
         let store = ClipboardStore(pasteboard: pasteboard, directory: directory, startsPolling: false)
         let controller = AppController(store: store)
-        controller.selectedIndex = previewFile == nil ? 0 : 2
+        controller.selectedIndex = previewFile == nil ? (scenario == "dark" ? 1 : 0) : 2
+        controller.showSettings = scenario == "settings"
         let app = NSApplication.shared
         app.applicationIconImage = NSImage(contentsOfFile: "dist/WooHooDoo.app/Contents/Resources/AppIcon.icns")
         app.setActivationPolicy(.regular)
         let window = NSPanel(contentRect: NSRect(origin: .zero, size: AppController.panelSize),
                              styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
-        window.appearance = NSAppearance(named: .aqua)
+        window.appearance = NSAppearance(named: scenario == "dark" ? .darkAqua : .aqua)
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.standardWindowButton(.closeButton)?.isHidden = true
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
+        window.isFloatingPanel = true
+        window.level = .floating
+        window.hasShadow = true
         window.contentView = NSHostingView(rootView: HistoryView(controller: controller))
         window.minSize = AppController.panelSize
         window.maxSize = AppController.panelSize
@@ -79,33 +86,17 @@ struct LayoutCheck {
         window.makeKeyAndOrderFront(nil)
         app.activate(ignoringOtherApps: true)
 
-        let prefix = CommandLine.arguments[1]
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            save(window: window, path: prefix + "-history.png")
-            controller.showSettings = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                save(window: window, path: prefix + "-settings.png")
-                controller.showSettings = false
-                if previewFile == nil { controller.selectedIndex = 1 }
-                window.appearance = NSAppearance(named: .darkAqua)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    save(window: window, path: prefix + "-dark.png")
-                    app.terminate(nil)
-                }
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            precondition(abs(window.frame.width - AppController.panelSize.width) < 1 &&
+                         abs(window.frame.height - AppController.panelSize.height) < 1,
+                         "Panel changed size while rendering \(scenario): \(window.frame)")
+            FileHandle.standardOutput.write(Data("Sample window ID: \(window.windowNumber)\n".utf8))
         }
-        withExtendedLifetime((controller, window)) { app.run() }
-    }
-
-    private static func save(window: NSWindow, path: String) {
-        precondition(abs(window.frame.width - AppController.panelSize.width) < 1 &&
-                     abs(window.frame.height - AppController.panelSize.height) < 1,
-                     "Panel changed size while rendering \(path): \(window.frame)")
-        guard let view = window.contentView,
-              let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
-        view.cacheDisplay(in: view.bounds, to: bitmap)
-        guard let data = bitmap.representation(using: .png, properties: [:]) else { return }
-        try? data.write(to: URL(fileURLWithPath: path))
+        signal(SIGTERM, SIG_IGN)
+        let terminate = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        terminate.setEventHandler { app.terminate(nil) }
+        terminate.resume()
+        withExtendedLifetime((controller, window, terminate)) { app.run() }
     }
 
     private static func makeSampleImage(in directory: URL) throws -> String {
