@@ -4,6 +4,18 @@ WooHooDoo is a free, open-source macOS menu bar app for clipboard history. Searc
 
 ![WooHooDoo clipboard history in light appearance](docs/screenshots/history-light.png)
 
+These are macOS window captures of the app with sample clips. They contain no personal clipboard data.
+
+| Video playing with native controls | GIF preview |
+| --- | --- |
+| ![Video playing in the preview pane with pause and timeline controls](docs/screenshots/video-preview.png) | ![Animated GIF file in the preview pane](docs/screenshots/gif-preview.png) |
+
+| Search and pinned clips | Dark appearance |
+| --- | --- |
+| ![Clipboard search results with a pinned code clip](docs/screenshots/search.png) | ![Clipboard history in dark appearance](docs/screenshots/history-dark.png) |
+
+![Clipboard retention and capture settings](docs/screenshots/settings-light.png)
+
 ## What it does
 
 - Captures text, images, and files. The latest copied item appears first.
@@ -49,20 +61,6 @@ Double-clicking a result also pastes it. Automatic paste needs macOS Accessibili
 GIF files play automatically in the preview. Copied GIF images also play when the source app puts the original GIF data on the clipboard. If it only supplies a still image, WooHooDoo cannot recover the animation.
 
 Open the gear button to change retention and capture settings. To start the app when you sign in, enable **Launch WooHooDoo at login** there. macOS may ask you to approve the login item in System Settings. Keep the installed app in `~/Applications` while this setting is enabled.
-
-## Screenshots
-
-These are macOS window captures of the app with sample clips. They contain no personal clipboard data.
-
-| Video playing with native controls | GIF preview |
-| --- | --- |
-| ![Video playing in the preview pane with pause and timeline controls](docs/screenshots/video-preview.png) | ![Animated GIF file in the preview pane](docs/screenshots/gif-preview.png) |
-
-| Search and pinned clips | Dark appearance |
-| --- | --- |
-| ![Clipboard search results with a pinned code clip](docs/screenshots/search.png) | ![Clipboard history in dark appearance](docs/screenshots/history-dark.png) |
-
-![Clipboard retention and capture settings](docs/screenshots/settings-light.png)
 
 ## Retention and privacy
 
