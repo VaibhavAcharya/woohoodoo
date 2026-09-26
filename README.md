@@ -4,8 +4,6 @@ WooHooDoo is a free, open-source macOS menu bar app for clipboard history. Searc
 
 ![WooHooDoo clipboard history in light appearance](docs/screenshots/history-light.png)
 
-These are macOS window captures of the app with sample clips. They contain no personal clipboard data.
-
 | Video playing with native controls | GIF preview |
 | --- | --- |
 | ![Video playing in the preview pane with pause and timeline controls](docs/screenshots/video-preview.png) | ![Animated GIF file in the preview pane](docs/screenshots/gif-preview.png) |
@@ -16,6 +14,10 @@ These are macOS window captures of the app with sample clips. They contain no pe
 
 ![Clipboard retention and capture settings](docs/screenshots/settings-light.png)
 
+## Why I built this
+
+Raycast used more memory than I wanted when clipboard history was the only feature I used. The clipboard apps I liked cost around $15, so I built my own and made it free and open source. I called it WooHooDoo because I may add other small utilities later.
+
 ## What it does
 
 - Captures text, images, and files. The latest copied item appears first.
@@ -24,7 +26,7 @@ These are macOS window captures of the app with sample clips. They contain no pe
 - Pins clips, sets retention limits, and pauses capture from settings.
 - Runs from the menu bar. Launch at login is optional and off by default.
 
-The app has no account, subscription, network calls, or third-party packages. Clipboard history is its first utility; the app structure leaves room for more.
+The app has no account, subscription, network calls, or third-party packages.
 
 ## Size and memory
 
