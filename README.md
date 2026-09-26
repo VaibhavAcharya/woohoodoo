@@ -1,6 +1,6 @@
 # WooHooDoo
 
-WooHooDoo is a free, open-source macOS menu bar app for clipboard history. Search and preview what you copied, then paste it back with a keyboard shortcut. It is built with SwiftUI and AppKit and keeps history on your Mac.
+WooHooDoo is a free and open source clipboard history app for macOS. Press `Command-Shift-V` to search, preview, and paste a clip. It runs from the menu bar, and your history stays on your Mac.
 
 ![WooHooDoo clipboard history in light appearance](docs/screenshots/history-light.png)
 
@@ -16,21 +16,21 @@ WooHooDoo is a free, open-source macOS menu bar app for clipboard history. Searc
 
 ## Why I built this
 
-Raycast used more memory than I wanted when clipboard history was the only feature I used. The clipboard apps I liked cost around $15, so I built my own and made it free and open source. I called it WooHooDoo because I may add other small utilities later.
+I used Raycast only for clipboard history, and it used more RAM than I wanted for that one feature. The dedicated apps I found cost around $15, so I built my own. It's free and open source. I might add other utilities as I need them.
 
 ## What it does
 
-- Captures text, images, and files. The latest copied item appears first.
-- Searches text and filenames, with filters for pinned items, text, images, and files.
-- Previews text and code directly, plays common video files with native controls, animates GIFs when their GIF data is available, and uses macOS Quick Look for other supported files. Copied file groups stay together.
-- Pins clips, sets retention limits, and pauses capture from settings.
-- Runs from the menu bar. Launch at login is optional and off by default.
+- Keeps a searchable history of text, images, and file paths. The latest clip stays on top.
+- Filters by pinned clips, text, images, or files.
+- Previews text, code, images, animated GIFs, and video. Quick Look handles other supported files.
+- Pins clips, pauses capture, and lets you set retention limits.
+- Opens from the menu bar or a keyboard shortcut. Launch at login is optional.
 
-The app has no account, subscription, network calls, or third-party packages.
+WooHooDoo needs no account and makes no network requests.
 
 ## Size and memory
 
-The release app bundle is **1.9 MB on disk**. In a local measurement on Apple silicon with macOS 27.0, the menu bar app had 14 saved clips and its panel was closed. After one minute, `vmmap -summary` reported a **69.6 MB physical footprint**; `ps` reported **114 MB resident memory (RSS)**. This was measured on 26 September 2026. Memory use can change with history size and open media previews.
+The release app bundle is **1.9 MB**. On 26 September 2026, a one-minute idle test on Apple silicon with macOS 27.0 and 14 saved clips measured **69.6 MB physical footprint** (`vmmap`) and **114 MB RSS** (`ps`). The window was closed; open previews and larger histories can use more memory.
 
 ## Install
 
@@ -82,7 +82,7 @@ Turn off **Launch WooHooDoo at login** in settings, quit the app from its `...` 
 | `./scripts/check.sh` | Run clipboard storage checks |
 | `./scripts/check-layout.sh` | Render sample screens to `.build/layout-*.png` |
 
-Read [architecture](docs/ARCHITECTURE.md) for the app's data flow and storage, and [contributing](CONTRIBUTING.md) before sending a change. The screenshots above come from `./scripts/check-layout.sh`, which captures a real 860 x 580 point sample window with its corners and shadow. On macOS 26 and later, header controls use Liquid Glass; earlier systems use standard controls.
+WooHooDoo is built with SwiftUI and AppKit, with no third-party packages. Read [architecture](docs/ARCHITECTURE.md) for the data flow and storage, and [contributing](CONTRIBUTING.md) before sending a change. Header controls use Liquid Glass on macOS 26 and later.
 
 ## License
 
