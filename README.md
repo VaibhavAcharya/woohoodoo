@@ -53,12 +53,15 @@ Press `Command-Shift-V` or click the WooHooDoo menu bar icon. Search, use the fi
 | `Command-Shift-V` | Open or close WooHooDoo |
 | `Up` / `Down` | Move through results |
 | `Return` | Paste the selected clip |
+| `Command-Shift-Return` | Paste the selected clip and keep the window open |
 | `Command-Return` | Copy the selected clip |
 | `Command-.` | Pin or unpin the selected clip |
 | `Command-X` | Delete the selected clip |
 | `Escape` | Close the panel or settings |
 
 Double-clicking a result also pastes it. Automatic paste needs macOS Accessibility access. Without it, WooHooDoo puts the clip on the clipboard and asks for access; you can paste manually.
+
+Click **Paste and Keep Open** or press `Command-Shift-Return` to paste several clips into the same app. The window stays open and regains keyboard focus after each paste. Your search and filter stay in place. Pin, Delete, and Copy show their icons and shortcuts; hover over them for their names.
 
 GIF files play automatically in the preview. Copied GIF images also play when the source app puts the original GIF data on the clipboard. If it only supplies a still image, WooHooDoo cannot recover the animation.
 

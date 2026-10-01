@@ -79,6 +79,17 @@ struct LayoutCheck {
         let app = NSApplication.shared
         app.applicationIconImage = NSImage(contentsOfFile: "dist/WooHooDoo.app/Contents/Resources/AppIcon.icns")
         app.setActivationPolicy(.regular)
+        let backdrop = NSWindow(contentRect: NSRect(origin: .zero,
+                                                   size: NSSize(width: AppController.panelSize.width + 160,
+                                                                height: AppController.panelSize.height + 160)),
+                                styleMask: [.borderless], backing: .buffered, defer: false)
+        backdrop.backgroundColor = scenario == "dark"
+            ? NSColor(calibratedRed: 0.12, green: 0.14, blue: 0.20, alpha: 1)
+            : NSColor(calibratedRed: 0.88, green: 0.90, blue: 0.95, alpha: 1)
+        backdrop.hasShadow = false
+        backdrop.level = .floating
+        backdrop.center()
+        backdrop.orderFront(nil)
         let window = NSPanel(contentRect: NSRect(origin: .zero, size: AppController.panelSize),
                              styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
         window.appearance = NSAppearance(named: scenario == "dark" ? .darkAqua : .aqua)
@@ -88,13 +99,14 @@ struct LayoutCheck {
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.isFloatingPanel = true
-        window.level = .floating
+        window.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue + 1)
         window.hasShadow = true
         window.contentView = NSHostingView(rootView: HistoryView(controller: controller))
         window.minSize = AppController.panelSize
         window.maxSize = AppController.panelSize
         window.setFrame(NSRect(origin: .zero, size: AppController.panelSize), display: false)
-        window.center()
+        window.setFrameOrigin(NSPoint(x: backdrop.frame.midX - window.frame.width / 2,
+                                      y: backdrop.frame.midY - window.frame.height / 2))
         window.makeKeyAndOrderFront(nil)
         app.activate(ignoringOtherApps: true)
 
@@ -106,17 +118,22 @@ struct LayoutCheck {
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             precondition(abs(window.frame.width - AppController.panelSize.width) < 1 &&
                          abs(window.frame.height - AppController.panelSize.height) < 1,
                          "Panel changed size while rendering \(scenario): \(window.frame)")
-            FileHandle.standardOutput.write(Data("Sample window ID: \(window.windowNumber)\n".utf8))
+            precondition(backdrop.screen?.visibleFrame.contains(backdrop.frame) == true,
+                         "Sample backdrop does not fit on screen")
+            let frame = backdrop.frame
+            let screenTop = NSScreen.screens[0].frame.maxY
+            let region = "\(Int(frame.minX)),\(Int(screenTop - frame.maxY)),\(Int(frame.width)),\(Int(frame.height))"
+            FileHandle.standardOutput.write(Data("Sample capture region: \(region)\n".utf8))
         }
         signal(SIGTERM, SIG_IGN)
         let terminate = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
         terminate.setEventHandler { app.terminate(nil) }
         terminate.resume()
-        withExtendedLifetime((controller, window, terminate)) { app.run() }
+        withExtendedLifetime((controller, window, backdrop, terminate)) { app.run() }
     }
 
     private static func playerView(in view: NSView) -> AVPlayerView? {

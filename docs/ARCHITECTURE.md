@@ -12,6 +12,8 @@
 
 The selected clip is written back to the system pasteboard before the previous app is activated. Copying a saved clip moves it to the top of history and refreshes its retention date. A synthetic `Command-V` needs Accessibility permission. When permission is unavailable, the clip remains on the pasteboard for manual paste.
 
+The **Paste and Keep Open** button and `Command-Shift-Return` keep the panel visible while the previous app receives the paste, then return keyboard focus to the panel. The search and filter stay in place, and the pasted clip stays selected after moving to the top of history. Pin, Delete, and Copy use compact icon and shortcut controls with tooltips and accessibility labels.
+
 ## Storage and retention
 
 `~/Library/Application Support/WooHooDoo/history.json` stores clip metadata, text, pause state, and retention settings. Copied images are separate files in the same folder. Finder files are stored as paths and are not duplicated. Removing an image clip removes its image file.

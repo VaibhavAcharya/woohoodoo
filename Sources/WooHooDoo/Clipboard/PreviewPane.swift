@@ -148,37 +148,51 @@ struct PreviewPane: View {
             Button {
                 controller.togglePin(clip)
             } label: {
-                actionLabel(clip.isPinned ? "Unpin" : "Pin",
+                actionLabel(nil,
                             symbol: clip.isPinned ? "pin.slash" : "pin", shortcut: "⌘.")
             }
             .buttonStyle(.bordered)
+            .accessibilityLabel(clip.isPinned ? "Unpin" : "Pin")
+            .help(clip.isPinned ? "Unpin (Command-Period)" : "Pin (Command-Period)")
             Button(role: .destructive) {
                 controller.delete(clip)
             } label: {
-                actionLabel("Delete", symbol: "trash", shortcut: "⌘X")
+                actionLabel(nil, symbol: "trash", shortcut: "⌘X")
             }
             .buttonStyle(.bordered)
+            .accessibilityLabel("Delete")
+            .help("Delete (Command-X)")
             Spacer()
             Button { controller.copy(clip) } label: {
-                actionLabel("Copy", symbol: "doc.on.doc", shortcut: "⌘↩")
+                actionLabel(nil, symbol: "doc.on.doc", shortcut: "⌘↩")
             }
                 .buttonStyle(.bordered)
                 .disabled(!store.canRestore(clip))
+                .accessibilityLabel("Copy")
+                .help("Copy (Command-Return)")
+            Button { controller.paste(clip, keepingOpen: true) } label: {
+                actionLabel("Paste and Keep Open", symbol: "arrow.turn.down.right", shortcut: "⌘⇧↩")
+            }
+                .buttonStyle(.bordered)
+                .disabled(!store.canRestore(clip))
+                .accessibilityLabel("Paste and keep the window open")
+                .help("Paste and keep the window open (Command-Shift-Return)")
             Button { controller.paste(clip) } label: {
                 actionLabel("Paste", symbol: "arrow.turn.down.right", shortcut: "↩")
             }
                 .buttonStyle(.borderedProminent)
                 .disabled(!store.canRestore(clip))
+                .help("Paste (Return). Press Command-Shift-Return to paste and keep the window open.")
         }
         .padding(.horizontal, 18)
         .frame(height: 60)
     }
 
-    private func actionLabel(_ title: String, symbol: String, shortcut: String) -> some View {
+    private func actionLabel(_ title: String?, symbol: String, shortcut: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: symbol)
                 .frame(width: 14)
-            Text(title)
+            if let title { Text(title) }
             Text(shortcut)
                 .font(.system(size: 10))
                 .foregroundStyle(.secondary)
@@ -186,6 +200,7 @@ struct PreviewPane: View {
         }
         .font(.system(size: 11, weight: .medium))
         .frame(height: 24)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private func unavailable(_ title: String) -> some View {

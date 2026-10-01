@@ -23,16 +23,16 @@ for scenario in light settings dark video gif search; do
     id_file="$(mktemp "$project_dir/.build/layout-id.XXXXXX")"
     .build/render-layout "$scenario" >"$id_file" &
     renderer_pid=$!
-    window_id=""
+    capture_region=""
     for ((attempt = 0; attempt < 100; attempt++)); do
         if [[ -s "$id_file" ]]; then
-            read -r _ _ _ window_id <"$id_file"
+            read -r _ _ _ capture_region <"$id_file"
             break
         fi
         if ! kill -0 "$renderer_pid" 2>/dev/null; then break; fi
         sleep 0.1
     done
-    if [[ ! "$window_id" =~ ^[0-9]+$ ]]; then
+    if [[ ! "$capture_region" =~ ^-?[0-9]+,-?[0-9]+,[0-9]+,[0-9]+$ ]]; then
         echo "Could not open the $scenario sample window." >&2
         exit 1
     fi
@@ -46,7 +46,7 @@ for scenario in light settings dark video gif search; do
         search) output="$project_dir/.build/layout-search.png" ;;
     esac
     rm -f "$output"
-    if ! screencapture -x -l"$window_id" "$output"; then
+    if ! screencapture -x -R"$capture_region" "$output"; then
         echo "Could not capture the $scenario sample window. Check macOS Screen Recording access for this terminal." >&2
         exit 1
     fi

@@ -37,6 +37,7 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
     private var hotKeyRef: EventHotKeyRef?
     private var hotKeyHandler: EventHandlerRef?
     private var previousApp: NSRunningApplication?
+    private var isPastingKeepingOpen = false
 
     var filteredClips: [Clip] {
         store.clips.filter { clip in
@@ -95,6 +96,11 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
             let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
             let hasCommand = modifiers.contains(.command)
             let hasOtherModifiers = !modifiers.intersection([.shift, .option, .control]).isEmpty
+            if !self.showSettings, event.keyCode == 36,
+               modifiers.intersection([.command, .shift, .option, .control]) == [.command, .shift] {
+                if !event.isARepeat { self.pasteSelected(keepingOpen: true) }
+                return nil
+            }
             if !self.showSettings, hasCommand, !hasOtherModifiers {
                 switch event.keyCode {
                 case UInt16(kVK_ANSI_Period):
@@ -152,7 +158,7 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
     }
 
     func windowDidResignKey(_ notification: Notification) {
-        hide()
+        if !isPastingKeepingOpen { hide() }
     }
 
     func windowDidResize(_ notification: Notification) {
@@ -174,9 +180,9 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
         selectedIndex = min(max(selectedIndex + offset, 0), count - 1)
     }
 
-    func pasteSelected() {
+    func pasteSelected(keepingOpen: Bool = false) {
         guard let selectedClip else { return }
-        paste(selectedClip)
+        paste(selectedClip, keepingOpen: keepingOpen)
     }
 
     func copySelected() {
@@ -234,17 +240,27 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
         launchAtLoginEnabled = SMAppService.mainApp.status == .enabled
     }
 
-    func paste(_ clip: Clip) {
+    func paste(_ clip: Clip, keepingOpen: Bool = false) {
+        guard !isPastingKeepingOpen else { return }
         guard store.copy(clip) else { return }
-        hide()
+        if keepingOpen { select(clip) } else { hide() }
         guard let previousApp, previousApp.bundleIdentifier != Bundle.main.bundleIdentifier else { return }
-        previousApp.activate(options: [])
+        if !keepingOpen { previousApp.activate(options: []) }
         guard AXIsProcessTrusted() else {
             let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
             _ = AXIsProcessTrustedWithOptions(options)
             return
         }
+        isPastingKeepingOpen = keepingOpen
+        let hidesOnDeactivate = panel?.hidesOnDeactivate ?? true
+        if keepingOpen { panel?.hidesOnDeactivate = false }
+        if keepingOpen { previousApp.activate(options: []) }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            guard NSWorkspace.shared.frontmostApplication?.processIdentifier == previousApp.processIdentifier else {
+                self.isPastingKeepingOpen = false
+                self.panel?.hidesOnDeactivate = hidesOnDeactivate
+                return
+            }
             let source = CGEventSource(stateID: .hidSystemState)
             let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true)
             let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false)
@@ -252,6 +268,17 @@ final class AppController: NSObject, ObservableObject, NSApplicationDelegate, NS
             up?.flags = .maskCommand
             down?.post(tap: .cghidEventTap)
             up?.post(tap: .cghidEventTap)
+            if keepingOpen {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    if self.panel?.isVisible == true,
+                       NSWorkspace.shared.frontmostApplication?.processIdentifier == previousApp.processIdentifier {
+                        NSApp.activate(ignoringOtherApps: true)
+                        self.panel?.makeKeyAndOrderFront(nil)
+                    }
+                    self.isPastingKeepingOpen = false
+                    self.panel?.hidesOnDeactivate = hidesOnDeactivate
+                }
+            }
         }
     }
 

@@ -14,3 +14,5 @@ For UI changes, build the app first so the renderer can load its icon, then rend
 The layout script captures the sample window through macOS `screencapture`. macOS may require Screen Recording access for the terminal running it. It renders history, settings, dark appearance, video playback, GIF preview, and search to `.build/layout-*.png`. When the public interface changes, copy the affected captures to `docs/screenshots/`. The video and GIF captures use the generated sample files in `docs/fixtures/`.
 
 Use sample clips in screenshots and bug reports. Clipboard history can contain private text, images, and file paths.
+
+The renderer places each sample window on a plain background. The capture includes an 80-point margin around the window and its native shadow. Keep this framing when updating public screenshots.
